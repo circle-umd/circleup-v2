@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toaster";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -36,6 +37,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Analytics />
           </ThemeProvider>
         </ToastProvider>
       </body>
