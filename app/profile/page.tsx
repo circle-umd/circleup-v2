@@ -3,9 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ProfileDisplay } from "@/components/profile/ProfileDisplay";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Suspense } from "react";
 import type { Profile } from "./types";
 
-async function getProfile(): Promise<Profile | null> {
+async function ProfileContent() {
   const supabase = await createClient();
   
   // Get current user
@@ -28,26 +29,26 @@ async function getProfile(): Promise<Profile | null> {
   if (profileError) {
     // Profile doesn't exist yet, return null
     if (profileError.code === "PGRST116") {
-      return null;
+      return <ProfileDisplay profile={null} />;
     }
     // Other errors - log and return null
     console.error("Error fetching profile:", profileError);
-    return null;
+    return <ProfileDisplay profile={null} />;
   }
 
-  return profile;
+  return <ProfileDisplay profile={profile} />;
 }
 
-export default async function ProfilePage() {
-  const profile = await getProfile();
-
+export default function ProfilePage() {
   return (
     <div className="mx-auto flex h-screen max-w-md flex-col bg-background">
       <ScrollArea className="flex-1 px-4 pt-4 pb-24">
         <div className="space-y-6">
           <section>
             <h1 className="mb-6 text-2xl font-semibold">Profile</h1>
-            <ProfileDisplay profile={profile} />
+            <Suspense fallback={<div>Loading profile...</div>}>
+              <ProfileContent />
+            </Suspense>
           </section>
         </div>
       </ScrollArea>
