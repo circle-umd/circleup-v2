@@ -1,4 +1,24 @@
 import type { Event } from "./types";
+import { createClient } from "@/lib/supabase/client";
+
+/**
+ * Formats a timestamp as an absolute date string.
+ * Format: "Dec 15, 2024 at 8:00 PM"
+ */
+function formatEventTime(timestamp: string): string {
+  const date = new Date(timestamp);
+  const datePart = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+  const timePart = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+  return `${datePart} at ${timePart}`;
+}
 
 // Mock data for development
 const mockForYouEvents: Event[] = [
@@ -103,11 +123,47 @@ const mockPopularEvents: Event[] = [
 
 /**
  * Data abstraction layer for events.
- * Currently returns mock data, but can be easily swapped to call real APIs.
+ * Fetches upcoming events from Supabase with pagination support.
+ * @param limit - Number of events to fetch (default: 10)
+ * @param offset - Number of events to skip (default: 0)
  */
-export async function getForYouEvents(): Promise<Event[]> {
-  // Simulate async data fetch
-  return Promise.resolve(mockForYouEvents);
+export async function getForYouEvents(
+  limit: number = 10,
+  offset: number = 0,
+): Promise<Event[]> {
+  try {
+    const supabase = createClient();
+    
+    const { data, error } = await supabase
+      .from("events")
+      .select("id, title, description, location, start_time")
+      .eq("status", "CONFIRMED")
+      .gte("start_time", new Date().toISOString())
+      .order("start_time", { ascending: true })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error("Error fetching events:", error);
+      return [];
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    // Map database fields to Event type
+    return data.map((event) => ({
+      id: event.id,
+      title: event.title,
+      description: event.description || "",
+      location: event.location || "",
+      time: formatEventTime(event.start_time),
+      attendees: [],
+    }));
+  } catch (error) {
+    console.error("Unexpected error fetching events:", error);
+    return [];
+  }
 }
 
 export async function getPopularEvents(): Promise<Event[]> {
