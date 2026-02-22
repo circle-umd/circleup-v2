@@ -1,109 +1,225 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# CircleUp
 
 <p align="center">
- The fastest way to build apps with Next.js and Supabase
+  <img alt="CircleUp - Find your circle!" src="./app/twitter-image.png" width="600">
+  <h1 align="center">CircleUp</h1>
 </p>
 
 <p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
+  Find your circle! A student-run initiative at the University of Maryland
 </p>
-<br/>
 
-## Features
+<p align="center">
+  <a href="#quick-start"><strong>Quick Start</strong></a> ·
+  <a href="#prerequisites"><strong>Prerequisites</strong></a> ·
+  <a href="#installation"><strong>Installation</strong></a> ·
+  <a href="#environment-setup"><strong>Environment Setup</strong></a> ·
+  <a href="#running-the-app"><strong>Running the App</strong></a> ·
+  <a href="#tech-stack"><strong>Tech Stack</strong></a>
+</p>
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+---
 
-## Demo
+## Quick Start
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+Get CircleUp running locally in 5 minutes:
 
-## Deploy to Vercel
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd circleup-v2
 
-Vercel deployment will guide you through creating a Supabase account and project.
+# 2. Install dependencies
+npm install
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+# 3. Set up environment variables (see Environment Setup below)
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+# 4. Run the development server
+npm run dev
+```
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+Visit [http://localhost:3000](http://localhost:3000) to see the app!
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+---
 
-## Clone and run locally
+## Prerequisites
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+Before you begin, make sure you have:
 
-2. Create a Next.js app using the Supabase Starter template npx command
+- **Node.js** 18+ installed ([Download](https://nodejs.org/))
+- **npm** or **yarn** or **pnpm** package manager
+- A **Supabase account** and project ([Create one here](https://database.new))
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+---
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+## Installation
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+### 1. Clone the Repository
 
-3. Use `cd` to change into the app's directory
+```bash
+git clone <repository-url>
+cd circleup-v2
+```
 
-   ```bash
-   cd with-supabase-app
-   ```
+### 2. Install Dependencies
 
-4. Rename `.env.example` to `.env.local` and update the following:
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+---
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+## Environment Setup
 
-5. You can now run the Next.js local development server:
+### 1. Create a Supabase Project
 
-   ```bash
-   npm run dev
-   ```
+1. Go to [database.new](https://database.new) and create a new Supabase project
+2. Wait for your project to be fully provisioned (this takes a few minutes)
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+### 2. Get Your Supabase Credentials
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+1. In your Supabase dashboard, go to **Settings** → **API**
+2. Copy the following values:
+   - **Project URL** (found under "Project URL")
+   - **Publishable Key** or **Anon Key** (found under "Project API keys")
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+### 3. Create Environment File
 
-## Feedback and issues
+Create a `.env.local` file in the root directory:
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+```bash
+cp .env.example .env.local
+```
 
-## More Supabase examples
+If `.env.example` doesn't exist, create `.env.local` manually with:
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
+```
+
+### 4. Add Your Credentials
+
+Open `.env.local` and replace the placeholders:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+> **Note:** You can use either the new **publishable key** format or the legacy **anon key** format. Both work with `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+
+---
+
+## Running the App
+
+### Development Server
+
+```bash
+npm run dev
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000)
+
+### Build for Production
+
+```bash
+npm run build
+npm start
+```
+
+### Linting
+
+```bash
+npm run lint
+```
+
+---
+
+## Tech Stack
+
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Database & Auth:** [Supabase](https://supabase.com/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Theme:** [next-themes](https://github.com/pacocoursey/next-themes)
+
+---
+
+## Project Structure
+
+```
+circleup-v2/
+├── app/                    # Next.js app directory
+│   ├── auth/              # Authentication pages
+│   ├── events/            # Events feed
+│   ├── friends/           # Friends page
+│   ├── profile/           # User profile
+│   └── layout.tsx         # Root layout
+├── components/            # React components
+│   ├── ui/               # shadcn/ui components
+│   └── ...
+├── lib/                   # Utility functions
+│   └── supabase/         # Supabase client setup
+└── public/               # Static assets
+```
+
+---
+
+## Key Features
+
+- ✅ **Authentication** - Password-based auth with Supabase
+- ✅ **Event Discovery** - Browse and RSVP to events
+- ✅ **Social Features** - Connect with friends
+- ✅ **User Profiles** - Manage your profile
+- ✅ **Responsive Design** - Mobile-first, desktop-optimized
+- ✅ **Dark Mode** - Theme switching support
+
+---
+
+## Troubleshooting
+
+### Environment Variables Not Loading
+
+If your environment variables aren't being recognized:
+
+1. Make sure the file is named `.env.local` (not `.env`)
+2. Restart your development server after adding/changing variables
+3. Check that variable names start with `NEXT_PUBLIC_` for client-side access
+
+### Supabase Connection Issues
+
+- Verify your Supabase project is active and not paused
+- Double-check your URL and API key in `.env.local`
+- Ensure there are no extra spaces or quotes in your environment variables
+
+### Port Already in Use
+
+If port 3000 is already in use:
+
+```bash
+# Use a different port
+npm run dev -- -p 3001
+```
+
+---
+
+## Getting Help
+
+- Check the [Supabase Documentation](https://supabase.com/docs)
+- Review [Next.js Documentation](https://nextjs.org/docs)
+- File issues in the project repository
+
+---
+
+## License
+
+This project is part of a student-run initiative at the University of Maryland.
