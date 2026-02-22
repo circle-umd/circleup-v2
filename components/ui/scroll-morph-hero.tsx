@@ -187,14 +187,26 @@ export default function IntroAnimation() {
     }, []);
 
     // --- Random Scatter Positions ---
-    const scatterPositions = useMemo(() => {
-        return IMAGES.map(() => ({
-            x: (Math.random() - 0.5) * 1500,
-            y: (Math.random() - 0.5) * 1000,
-            rotation: (Math.random() - 0.5) * 180,
-            scale: 0.6,
-            opacity: 0,
-        }));
+    // Generate random positions only on client side to avoid SSR/hydration mismatch
+    const [scatterPositions, setScatterPositions] = useState<Array<{
+        x: number;
+        y: number;
+        rotation: number;
+        scale: number;
+        opacity: number;
+    }>>([]);
+
+    useEffect(() => {
+        // Only generate random positions on client side
+        setScatterPositions(
+            IMAGES.map(() => ({
+                x: (Math.random() - 0.5) * 1500,
+                y: (Math.random() - 0.5) * 1000,
+                rotation: (Math.random() - 0.5) * 180,
+                scale: 0.6,
+                opacity: 0,
+            }))
+        );
     }, []);
 
     // --- Render Loop (Manual Calculation for Morph) ---
@@ -321,7 +333,8 @@ export default function IntroAnimation() {
 
                         // 1. Intro Phases (Scatter -> Line)
                         if (introPhase === "scatter") {
-                            target = scatterPositions[i];
+                            // Use scatter position if available, otherwise use default (will be set once useEffect runs)
+                            target = scatterPositions[i] || { x: 0, y: 0, rotation: 0, scale: 0.6, opacity: 0 };
                         } else if (introPhase === "line") {
                             const lineSpacing = 70; // Adjusted for smaller images (60px width + 10px gap)
                             const lineTotalWidth = TOTAL_IMAGES * lineSpacing;
