@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toaster";
 import { ThemeProvider } from "next-themes";
@@ -14,11 +14,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "CircleUp",
   description: "Find your circle!",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    viewportFit: "cover",
-  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 const geistSans = Geist({
