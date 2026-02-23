@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Clock, MapPin, X } from "lucide-react";
+import { Check, Clock, MapPin, UserCircle, X } from "lucide-react";
 import type { Event } from "./types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,14 +18,18 @@ interface EventCardProps {
   event: Event;
   onAccept: (id: string) => void;
   onDismiss: (id: string) => void;
+  onClick?: () => void;
   variant?: "default" | "popular";
+  isAlreadyAccepted?: boolean;
 }
 
 export function EventCard({
   event,
   onAccept,
   onDismiss,
+  onClick,
   variant = "default",
+  isAlreadyAccepted = false,
 }: EventCardProps) {
   const getInitials = (name: string) => {
     return name
@@ -39,12 +43,30 @@ export function EventCard({
   const visibleAttendees = event.attendees.slice(0, 3);
   const remainingCount = event.attendees.length - visibleAttendees.length;
 
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleAcceptClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAccept(event.id);
+  };
+
+  const handleDismissClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDismiss(event.id);
+  };
+
   return (
     <Card
       className={cn(
         "relative",
         variant === "popular" && "border-primary/20",
+        onClick && "cursor-pointer",
       )}
+      onClick={handleCardClick}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
@@ -54,8 +76,9 @@ export function EventCard({
               size="icon"
               variant="secondary"
               className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
-              onClick={() => onAccept(event.id)}
+              onClick={handleAcceptClick}
               aria-label="Accept event"
+              disabled={isAlreadyAccepted}
             >
               <Check className="h-4 w-4" />
             </Button>
@@ -63,7 +86,7 @@ export function EventCard({
               size="icon"
               variant="ghost"
               className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-              onClick={() => onDismiss(event.id)}
+              onClick={handleDismissClick}
               aria-label="Dismiss event"
             >
               <X className="h-4 w-4" />
@@ -84,6 +107,12 @@ export function EventCard({
             <MapPin className="h-4 w-4 shrink-0" />
             <span>{event.location}</span>
           </div>
+          {(event.organizer || event.organizerName) && (
+            <div className="flex items-center gap-2">
+              <UserCircle className="h-4 w-4 shrink-0" />
+              <span>{event.organizer?.name || event.organizerName || ""}</span>
+            </div>
+          )}
         </div>
       </CardContent>
       {event.attendees.length > 0 && (

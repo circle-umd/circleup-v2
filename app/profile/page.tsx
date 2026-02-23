@@ -1,10 +1,11 @@
 import { BottomNav } from "@/components/BottomNav";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { ProfileDisplay } from "@/components/profile/ProfileDisplay";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Suspense } from "react";
 import type { Profile } from "./types";
+import { ProfileContentClient } from "./ProfileContentClient";
+import { ProfileSkeleton } from "./ProfileSkeleton";
 
 async function ProfileContent() {
   const supabase = await createClient();
@@ -26,17 +27,43 @@ async function ProfileContent() {
     .eq("id", user.id)
     .single();
 
+  // Fetch friend count
+  // Use user_id only since friendships use double-row architecture
+  const { count: friendCount, error: friendCountError } = await supabase
+    .from("friendships")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("status", "ACCEPTED");
+
   if (profileError) {
     // Profile doesn't exist yet, return null
     if (profileError.code === "PGRST116") {
-      return <ProfileDisplay profile={null} />;
+      return (
+        <ProfileContentClient
+          profile={null}
+          userId={user.id}
+          friendCount={friendCountError ? 0 : friendCount || 0}
+        />
+      );
     }
     // Other errors - log and return null
     console.error("Error fetching profile:", profileError);
-    return <ProfileDisplay profile={null} />;
+    return (
+      <ProfileContentClient
+        profile={null}
+        userId={user.id}
+        friendCount={friendCountError ? 0 : friendCount || 0}
+      />
+    );
   }
 
-  return <ProfileDisplay profile={profile} />;
+  return (
+    <ProfileContentClient
+      profile={profile}
+      userId={user.id}
+      friendCount={friendCountError ? 0 : friendCount || 0}
+    />
+  );
 }
 
 export default function ProfilePage() {
@@ -46,7 +73,7 @@ export default function ProfilePage() {
         <div className="space-y-6">
           <section>
             <h1 className="mb-6 text-2xl font-semibold">Profile</h1>
-            <Suspense fallback={<div>Loading profile...</div>}>
+            <Suspense fallback={<ProfileSkeleton />}>
               <ProfileContent />
             </Suspense>
           </section>
