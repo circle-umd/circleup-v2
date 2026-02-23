@@ -5,8 +5,8 @@ import { ChevronRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <main className="h-[100dvh] w-[100vw] flex flex-col items-center justify-center p-6 relative overflow-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-      {/* Background Image */}
+    <main className="h-[100dvh] w-[100vw] flex flex-col relative overflow-hidden">
+      {/* Background Image Wrapper - spans the WHOLE screen */}
       <div 
         className="absolute inset-0 z-0"
         style={{
@@ -14,6 +14,8 @@ export default function Home() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+          width: '100vw',
+          height: '100dvh',
         }}
       />
       
@@ -25,8 +27,16 @@ export default function Home() {
         }}
       />
       
-      {/* Content */}
-      <div className="flex flex-col items-center gap-8 max-w-md w-full relative z-10 font-sans">
+      {/* Content with safe-area padding */}
+      <div 
+        className="flex flex-col items-center justify-center gap-8 max-w-md w-full relative z-10 font-sans flex-1 p-6"
+        style={{
+          paddingTop: 'calc(env(safe-area-inset-top) + 1.5rem)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)',
+          paddingLeft: 'calc(env(safe-area-inset-left) + 1.5rem)',
+          paddingRight: 'calc(env(safe-area-inset-right) + 1.5rem)',
+        }}
+      >
         {/* Logo */}
         <div className="relative w-full max-w-[300px] aspect-square">
           <Image
@@ -42,9 +52,6 @@ export default function Home() {
         <div className="text-center space-y-2 font-sans">
           <p className="text-3xl md:text-4xl lg:text-5xl font-medium text-white font-sans">
             Find your circle!
-          </p>
-          <p className="text-lg md:text-xl lg:text-2xl text-white font-sans">
-            A student-run initiative at the University of Maryland
           </p>
         </div>
 
