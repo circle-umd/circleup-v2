@@ -1,6 +1,21 @@
 import { createClient } from "@/lib/supabase/client";
 import type { Friend, SearchResult } from "./types";
 
+// Local types for the query result
+interface ProfileData {
+  id: string;
+  username: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+}
+
+interface FriendshipQueryResult {
+  friend_id: string;
+  status: string;
+  profiles: ProfileData | ProfileData[] | null;
+}
+
 /**
  * Fetches all accepted friends for a user
  * Uses the double-row architecture: query where user_id = userId
@@ -40,9 +55,25 @@ export async function getFriends(userId: string): Promise<Friend[]> {
 
     // Map the data to Friend format
     const friends: Friend[] = [];
-    for (const item of data) {
+    for (const item of data as FriendshipQueryResult[]) {
       const profile = item.profiles;
-      if (profile && typeof profile === "object" && !Array.isArray(profile)) {
+      
+      // Handle both array and object cases
+      if (Array.isArray(profile)) {
+        // If it's an array, take the first profile
+        if (profile.length > 0) {
+          const profileData = profile[0];
+          friends.push({
+            id: profileData.id,
+            username: profileData.username,
+            first_name: profileData.first_name,
+            last_name: profileData.last_name,
+            avatar_url: profileData.avatar_url,
+            status: item.status as "ACCEPTED",
+          });
+        }
+      } else if (profile && typeof profile === "object") {
+        // If it's a single object
         friends.push({
           id: profile.id,
           username: profile.username,
