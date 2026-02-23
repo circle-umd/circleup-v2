@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <main className="h-[100dvh] w-[100vw] flex flex-col items-center justify-center p-6 relative overflow-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       {/* Background Image */}
       <div 
         className="absolute inset-0 z-0"
@@ -17,13 +17,6 @@ export default function Home() {
         }}
       />
       
-      {/* Circular Dimming Overlay - Light Mode */}
-      <div 
-        className="absolute inset-0 z-0 dark:hidden"
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 20%, rgba(255, 255, 255, 0.5) 70%)',
-        }}
-      />
       {/* Circular Dimming Overlay - Dark Mode */}
       <div 
         className="absolute inset-0 z-0 hidden dark:block"
@@ -40,7 +33,7 @@ export default function Home() {
             src="/circleup.png"
             alt="CircleUp Logo"
             fill
-            className="object-contain dark:invert"
+            className="object-contain invert"
             priority
           />
         </div>
