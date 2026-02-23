@@ -3,10 +3,13 @@ import { createClient } from "@/lib/supabase/client";
 
 /**
  * Formats a timestamp as an absolute date string.
- * Format: "Dec 15, 2024 at 8:00 PM"
+ * Format: "Monday, Dec 15, 2024 at 8:00 PM"
  */
 function formatEventTime(timestamp: string): string {
   const date = new Date(timestamp);
+  const weekdayPart = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+  }).format(date);
   const datePart = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -17,7 +20,7 @@ function formatEventTime(timestamp: string): string {
     minute: "2-digit",
     hour12: true,
   }).format(date);
-  return `${datePart} at ${timePart}`;
+  return `${weekdayPart}, ${datePart} at ${timePart}`;
 }
 
 // Mock data for development
@@ -134,8 +137,10 @@ export async function getForYouEvents(
   try {
     const supabase = createClient();
     
+    // Use unseen_events view which automatically filters out events
+    // the authenticated user has already RSVP'd to (any status including HIDDEN)
     const { data, error } = await supabase
-      .from("events")
+      .from("unseen_events")
       .select("id, title, description, location, start_time")
       .eq("status", "CONFIRMED")
       .gte("start_time", new Date().toISOString())

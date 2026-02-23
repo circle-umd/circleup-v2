@@ -8,6 +8,7 @@ type ToastMessage = {
   id: number;
   title?: string;
   description?: string;
+  variant?: "default" | "destructive";
 };
 
 type ToastContextValue = {
@@ -41,7 +42,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div className="fixed inset-x-0 bottom-4 z-50 flex flex-col items-center gap-2">
         {toasts.map((t) => (
-          <Toast key={t.id} className="bg-background/95 backdrop-blur">
+          <Toast
+            key={t.id}
+            variant={t.variant || "default"}
+            className="bg-background/95 backdrop-blur"
+          >
             <div className="flex flex-col gap-1">
               {t.title ? <ToastTitle>{t.title}</ToastTitle> : null}
               {t.description ? (

@@ -18,6 +18,7 @@ interface EventCardProps {
   event: Event;
   onAccept: (id: string) => void;
   onDismiss: (id: string) => void;
+  onClick?: () => void;
   variant?: "default" | "popular";
 }
 
@@ -25,6 +26,7 @@ export function EventCard({
   event,
   onAccept,
   onDismiss,
+  onClick,
   variant = "default",
 }: EventCardProps) {
   const getInitials = (name: string) => {
@@ -39,12 +41,30 @@ export function EventCard({
   const visibleAttendees = event.attendees.slice(0, 3);
   const remainingCount = event.attendees.length - visibleAttendees.length;
 
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
+  const handleAcceptClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAccept(event.id);
+  };
+
+  const handleDismissClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDismiss(event.id);
+  };
+
   return (
     <Card
       className={cn(
         "relative",
         variant === "popular" && "border-primary/20",
+        onClick && "cursor-pointer",
       )}
+      onClick={handleCardClick}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
@@ -54,7 +74,7 @@ export function EventCard({
               size="icon"
               variant="secondary"
               className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
-              onClick={() => onAccept(event.id)}
+              onClick={handleAcceptClick}
               aria-label="Accept event"
             >
               <Check className="h-4 w-4" />
@@ -63,7 +83,7 @@ export function EventCard({
               size="icon"
               variant="ghost"
               className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-              onClick={() => onDismiss(event.id)}
+              onClick={handleDismissClick}
               aria-label="Dismiss event"
             >
               <X className="h-4 w-4" />

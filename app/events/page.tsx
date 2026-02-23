@@ -2,57 +2,137 @@
 
 import { useEffect, useState } from "react";
 import type { Event } from "./types";
-import { getForYouEvents, getPopularEvents } from "./data";
+import { getForYouEvents } from "./data";
+import { createRsvp } from "./rsvp";
 import { EventCard } from "./EventCard";
+import { EventDetailsSheet } from "./EventDetailsSheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { BottomNav } from "@/components/BottomNav";
 import { useToast } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
 
 export default function EventsPage() {
   const [forYouEvents, setForYouEvents] = useState<Event[]>([]);
-  const [popularEvents, setPopularEvents] = useState<Event[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMoreEvents, setHasMoreEvents] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     async function loadEvents() {
-      const [forYou, popular] = await Promise.all([
-        getForYouEvents(10, 0),
-        getPopularEvents(),
-      ]);
+      const forYou = await getForYouEvents(10, 0);
       setForYouEvents(forYou);
-      setPopularEvents(popular);
       // If we got less than 10 events, there are no more to load
       setHasMoreEvents(forYou.length === 10);
     }
     loadEvents();
   }, []);
 
-  const handleAccept = (id: string, list: "forYou" | "popular") => {
-    if (list === "forYou") {
+  const handleAccept = async (id: string) => {
+    try {
+      // Get current user ID
+      const supabase = createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to save events.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create RSVP with INTERESTED status
+      const { error } = await createRsvp(id, user.id, 'INTERESTED');
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to save event. Please try again.",
+          variant: "destructive",
+        });
+        // Keep event in feed on error
+        return;
+      }
+
+      // Success: remove from local state and show toast
       setForYouEvents((prev) => prev.filter((e) => e.id !== id));
-    } else {
-      setPopularEvents((prev) => prev.filter((e) => e.id !== id));
+      toast({
+        title: "Event saved",
+        description: "You've marked this event as interested.",
+      });
+    } catch (error) {
+      console.error("Unexpected error in handleAccept:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
-    toast({
-      title: "Event saved",
-      description: "You've marked this event as going.",
-    });
   };
 
-  const handleDismiss = (id: string, list: "forYou" | "popular") => {
-    if (list === "forYou") {
+  const handleDismiss = async (id: string) => {
+    try {
+      // Get current user ID
+      const supabase = createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to dismiss events.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create RSVP with HIDDEN status
+      const { error } = await createRsvp(id, user.id, 'HIDDEN');
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to dismiss event. Please try again.",
+          variant: "destructive",
+        });
+        // Keep event in feed on error
+        return;
+      }
+
+      // Success: remove from local state and show toast
       setForYouEvents((prev) => prev.filter((e) => e.id !== id));
-    } else {
-      setPopularEvents((prev) => prev.filter((e) => e.id !== id));
+      toast({
+        title: "Event dismissed",
+        description: "This event has been removed from your feed.",
+      });
+    } catch (error) {
+      console.error("Unexpected error in handleDismiss:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
-    toast({
-      title: "Event dismissed",
-      description: "This event has been removed from your feed.",
-    });
+  };
+
+  const handleCardClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
+
+  const handleModalAccept = () => {
+    if (selectedEvent) {
+      handleAccept(selectedEvent.id);
+    }
+  };
+
+  const handleModalDismiss = () => {
+    if (selectedEvent) {
+      handleDismiss(selectedEvent.id);
+    }
   };
 
   const handleShowMore = async () => {
@@ -91,8 +171,9 @@ export default function EventsPage() {
                     <EventCard
                       key={event.id}
                       event={event}
-                      onAccept={() => handleAccept(event.id, "forYou")}
-                      onDismiss={() => handleDismiss(event.id, "forYou")}
+                      onAccept={() => handleAccept(event.id)}
+                      onDismiss={() => handleDismiss(event.id)}
+                      onClick={() => handleCardClick(event)}
                     />
                   ))}
                   {hasMoreEvents && (
@@ -114,33 +195,16 @@ export default function EventsPage() {
               )}
             </div>
           </section>
-
-          <Separator />
-
-          {/* Popular with Friends Section */}
-          <section>
-            <h2 className="mb-4 text-lg font-semibold">Popular with friends</h2>
-            <div className="space-y-4">
-              {popularEvents.length > 0 ? (
-                popularEvents.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onAccept={() => handleAccept(event.id, "popular")}
-                    onDismiss={() => handleDismiss(event.id, "popular")}
-                    variant="popular"
-                  />
-                ))
-              ) : (
-                <p className="py-8 text-center text-sm text-muted-foreground">
-                  No popular events right now.
-                </p>
-              )}
-            </div>
-          </section>
         </div>
       </ScrollArea>
       <BottomNav />
+      <EventDetailsSheet
+        event={selectedEvent}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onAccept={handleModalAccept}
+        onDismiss={handleModalDismiss}
+      />
     </div>
   );
 }
