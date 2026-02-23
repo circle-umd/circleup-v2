@@ -39,22 +39,21 @@ export async function getFriends(userId: string): Promise<Friend[]> {
     }
 
     // Map the data to Friend format
-    return data
-      .map((item) => {
-        const profile = item.profiles;
-        if (profile && typeof profile === "object" && !Array.isArray(profile)) {
-          return {
-            id: profile.id,
-            username: profile.username,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
-            avatar_url: profile.avatar_url,
-            status: item.status as "ACCEPTED",
-          };
-        }
-        return null;
-      })
-      .filter((friend): friend is Friend => friend !== null);
+    const friends: Friend[] = [];
+    for (const item of data) {
+      const profile = item.profiles;
+      if (profile && typeof profile === "object" && !Array.isArray(profile)) {
+        friends.push({
+          id: profile.id,
+          username: profile.username,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          avatar_url: profile.avatar_url,
+          status: item.status as "ACCEPTED",
+        });
+      }
+    }
+    return friends;
   } catch (error) {
     console.error("Unexpected error fetching friends:", error);
     return [];
