@@ -11,6 +11,9 @@ export type Event = {
   location: string;
   time: string;
   attendees: User[];
+  organizer?: User;
+  organizerName?: string;
+  url?: string;
 };
 
 // RSVP-related types

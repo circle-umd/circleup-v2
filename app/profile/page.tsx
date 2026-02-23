@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Suspense } from "react";
 import type { Profile } from "./types";
 import { ProfileContentClient } from "./ProfileContentClient";
+import { ProfileSkeleton } from "./ProfileSkeleton";
 
 async function ProfileContent() {
   const supabase = await createClient();
@@ -72,7 +73,7 @@ export default function ProfilePage() {
         <div className="space-y-6">
           <section>
             <h1 className="mb-6 text-2xl font-semibold">Profile</h1>
-            <Suspense fallback={<div>Loading profile...</div>}>
+            <Suspense fallback={<ProfileSkeleton />}>
               <ProfileContent />
             </Suspense>
           </section>

@@ -287,6 +287,7 @@ export function ProfileDisplay({
         onOpenChange={setIsEventSheetOpen}
         onAccept={handleModalAccept}
         onDismiss={handleModalDismiss}
+        isAlreadyAccepted={true}
       />
     </div>
   );

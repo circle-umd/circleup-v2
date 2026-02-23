@@ -1,69 +1,72 @@
-"use client";
-import { DeployButton } from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import { AuthButton } from "@/components/auth-button";
-import { Hero } from "@/components/hero";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
-import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
-
-// export default function Home() {
-//   return (
-//     <main className="min-h-screen flex flex-col items-center">
-//       <div className="flex-1 w-full flex flex-col gap-20 items-center">
-//         <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-//           <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-//             <div className="flex gap-5 items-center font-semibold">
-//               <Link href={"/"}>Next.js Supabase Starter</Link>
-//               <div className="flex items-center gap-2">
-//                 <DeployButton />
-//               </div>
-//             </div>
-//             {!hasEnvVars ? (
-//               <EnvVarWarning />
-//             ) : (
-//               <Suspense>
-//                 <AuthButton />
-//               </Suspense>
-//             )}
-//           </div>
-//         </nav>
-//         <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
-//           <Hero />
-//           <main className="flex-1 flex flex-col gap-6 px-4">
-//             <h2 className="font-medium text-xl mb-4">Next steps</h2>
-//             {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-//           </main>
-//         </div>
-
-//         <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
-//           <p>
-//             Powered by{" "}
-//             <a
-//               href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-//               target="_blank"
-//               className="font-bold hover:underline"
-//               rel="noreferrer"
-//             >
-//               Supabase
-//             </a>
-//           </p>
-//           <ThemeSwitcher />
-//         </footer>
-//       </div>
-//     </main>
-//   );
-// }
-
-import IntroAnimation from "../components/ui/scroll-morph-hero";
+import { Button } from "@/components/ui/button";
+import { ChevronRight } from "lucide-react";
 
 export default function Home() {
-    return (
-        <div className="w-full h-[800px] border rounded-lg overflow-hidden relative">
-            <IntroAnimation />
+  return (
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url(/landing.PNG)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      
+      {/* Circular Dimming Overlay - Light Mode */}
+      <div 
+        className="absolute inset-0 z-0 dark:hidden"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 20%, rgba(255, 255, 255, 0.5) 70%)',
+        }}
+      />
+      {/* Circular Dimming Overlay - Dark Mode */}
+      <div 
+        className="absolute inset-0 z-0 hidden dark:block"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 20%, rgba(0, 0, 0, 0.5) 70%)',
+        }}
+      />
+      
+      {/* Content */}
+      <div className="flex flex-col items-center gap-8 max-w-md w-full relative z-10 font-sans">
+        {/* Logo */}
+        <div className="relative w-full max-w-[300px] aspect-square">
+          <Image
+            src="/circleup.png"
+            alt="CircleUp Logo"
+            fill
+            className="object-contain dark:invert"
+            priority
+          />
         </div>
-    );
+
+        {/* Mission Statement */}
+        <div className="text-center space-y-2 font-sans">
+          <p className="text-3xl md:text-4xl lg:text-5xl font-medium text-white font-sans">
+            Find your circle!
+          </p>
+          <p className="text-lg md:text-xl lg:text-2xl text-white font-sans">
+            A student-run initiative at the University of Maryland
+          </p>
+        </div>
+
+        {/* Login Button */}
+        <Button 
+          asChild 
+          size="lg" 
+          className="mt-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/30 text-lg font-semibold font-sans"
+        >
+          <Link href="/auth/login" className="flex items-center gap-2 font-sans">
+            Login
+            <ChevronRight className="h-5 w-5" />
+          </Link>
+        </Button>
+      </div>
+    </main>
+  );
 }

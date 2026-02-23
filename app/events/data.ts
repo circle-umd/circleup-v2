@@ -141,7 +141,7 @@ export async function getForYouEvents(
     // the authenticated user has already RSVP'd to (any status including HIDDEN)
     const { data, error } = await supabase
       .from("unseen_events")
-      .select("id, title, description, location, start_time")
+      .select("id, title, description, location, start_time, organizer_id, organizer, url")
       .eq("status", "CONFIRMED")
       .gte("start_time", new Date().toISOString())
       .order("start_time", { ascending: true })
@@ -156,15 +156,58 @@ export async function getForYouEvents(
       return [];
     }
 
+    // Collect unique organizer IDs
+    const organizerIds = data
+      .map((event) => event.organizer_id)
+      .filter((id): id is string => id !== null && id !== undefined);
+
+    // Batch fetch organizer profiles
+    let organizerMap = new Map<string, { id: string; name: string; avatarUrl?: string }>();
+    
+    if (organizerIds.length > 0) {
+      const { data: organizerData, error: organizerError } = await supabase
+        .from("profiles")
+        .select("id, username, first_name, last_name, avatar_url")
+        .in("id", organizerIds);
+
+      if (!organizerError && organizerData) {
+        organizerData.forEach((profile) => {
+          // Build name from first_name + last_name, fallback to username, or "Unknown Organizer"
+          const name =
+            profile.first_name && profile.last_name
+              ? `${profile.first_name} ${profile.last_name}`
+              : profile.first_name ||
+                profile.last_name ||
+                profile.username ||
+                "Unknown Organizer";
+
+          organizerMap.set(profile.id, {
+            id: profile.id,
+            name,
+            avatarUrl: profile.avatar_url || undefined,
+          });
+        });
+      }
+    }
+
     // Map database fields to Event type
-    return data.map((event) => ({
-      id: event.id,
-      title: event.title,
-      description: event.description || "",
-      location: event.location || "",
-      time: formatEventTime(event.start_time),
-      attendees: [],
-    }));
+    return data.map((event) => {
+      const organizer = event.organizer_id
+        ? organizerMap.get(event.organizer_id)
+        : undefined;
+
+      return {
+        id: event.id,
+        title: event.title,
+        description: event.description || "",
+        location: event.location || "",
+        time: formatEventTime(event.start_time),
+        attendees: [],
+        organizer,
+        organizerName: event.organizer || undefined,
+        url: event.url || undefined,
+      };
+    });
   } catch (error) {
     console.error("Unexpected error fetching events:", error);
     return [];
@@ -206,19 +249,100 @@ export async function getPopularWithFriendsEvents(
       return [];
     }
 
+    const events = data as PopularEventResponse[];
+
+    // Collect event IDs to fetch organizer information
+    const eventIds = events.map((item) => item.event_id);
+
+    // Batch fetch organizer information for these events
+    const eventOrganizerMap = new Map<string, { id: string; name: string; avatarUrl?: string }>();
+    const eventOrganizerNameMap = new Map<string, string>();
+    const eventUrlMap = new Map<string, string>();
+    
+    if (eventIds.length > 0) {
+      const { data: eventsData, error: eventsError } = await supabase
+        .from("events")
+        .select("id, organizer_id, organizer, url")
+        .in("id", eventIds);
+
+      if (!eventsError && eventsData) {
+        // Extract organizer names and URLs
+        eventsData.forEach((event) => {
+          if (event.organizer) {
+            eventOrganizerNameMap.set(event.id, event.organizer);
+          }
+          if (event.url) {
+            eventUrlMap.set(event.id, event.url);
+          }
+        });
+
+        // Fetch organizer profiles
+        const organizerIds = eventsData
+          .map((event) => event.organizer_id)
+          .filter((id): id is string => id !== null && id !== undefined);
+
+        if (organizerIds.length > 0) {
+          const { data: organizerData, error: organizerError } = await supabase
+            .from("profiles")
+            .select("id, username, first_name, last_name, avatar_url")
+            .in("id", organizerIds);
+
+          if (!organizerError && organizerData) {
+            const profileMap = new Map<string, { id: string; name: string; avatarUrl?: string }>();
+            
+            organizerData.forEach((profile) => {
+              // Build name from first_name + last_name, fallback to username, or "Unknown Organizer"
+              const name =
+                profile.first_name && profile.last_name
+                  ? `${profile.first_name} ${profile.last_name}`
+                  : profile.first_name ||
+                    profile.last_name ||
+                    profile.username ||
+                    "Unknown Organizer";
+
+              profileMap.set(profile.id, {
+                id: profile.id,
+                name,
+                avatarUrl: profile.avatar_url || undefined,
+              });
+            });
+
+            // Create a map from event_id to organizer
+            eventsData.forEach((event) => {
+              if (event.organizer_id) {
+                const organizer = profileMap.get(event.organizer_id);
+                if (organizer) {
+                  eventOrganizerMap.set(event.id, organizer);
+                }
+              }
+            });
+          }
+        }
+      }
+    }
+
     // Map RPC response to Event[] format
-    return (data as PopularEventResponse[]).map((item) => ({
-      id: item.event_id,
-      title: item.title,
-      description: item.description || "",
-      location: item.location || "",
-      time: formatEventTime(item.start_time),
-      attendees: item.interested_friends.map((friend) => ({
-        id: friend.id,
-        name: friend.username,
-        avatarUrl: friend.avatar_url || undefined,
-      })),
-    }));
+    return events.map((item) => {
+      const organizer = eventOrganizerMap.get(item.event_id);
+      const organizerName = eventOrganizerNameMap.get(item.event_id);
+      const url = eventUrlMap.get(item.event_id);
+
+      return {
+        id: item.event_id,
+        title: item.title,
+        description: item.description || "",
+        location: item.location || "",
+        time: formatEventTime(item.start_time),
+        attendees: item.interested_friends.map((friend) => ({
+          id: friend.id,
+          name: friend.username,
+          avatarUrl: friend.avatar_url || undefined,
+        })),
+        organizer,
+        organizerName: organizerName || undefined,
+        url: url || undefined,
+      };
+    });
   } catch (error) {
     console.error("Unexpected error fetching popular events with friends:", error);
     return [];

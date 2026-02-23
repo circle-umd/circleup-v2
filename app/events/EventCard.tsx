@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Clock, MapPin, X } from "lucide-react";
+import { Check, Clock, MapPin, UserCircle, X } from "lucide-react";
 import type { Event } from "./types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ interface EventCardProps {
   onDismiss: (id: string) => void;
   onClick?: () => void;
   variant?: "default" | "popular";
+  isAlreadyAccepted?: boolean;
 }
 
 export function EventCard({
@@ -28,6 +29,7 @@ export function EventCard({
   onDismiss,
   onClick,
   variant = "default",
+  isAlreadyAccepted = false,
 }: EventCardProps) {
   const getInitials = (name: string) => {
     return name
@@ -76,6 +78,7 @@ export function EventCard({
               className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
               onClick={handleAcceptClick}
               aria-label="Accept event"
+              disabled={isAlreadyAccepted}
             >
               <Check className="h-4 w-4" />
             </Button>
@@ -104,6 +107,12 @@ export function EventCard({
             <MapPin className="h-4 w-4 shrink-0" />
             <span>{event.location}</span>
           </div>
+          {(event.organizer || event.organizerName) && (
+            <div className="flex items-center gap-2">
+              <UserCircle className="h-4 w-4 shrink-0" />
+              <span>{event.organizer?.name || event.organizerName || ""}</span>
+            </div>
+          )}
         </div>
       </CardContent>
       {event.attendees.length > 0 && (

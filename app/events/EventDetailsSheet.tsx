@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Clock, MapPin, X } from "lucide-react";
+import { Check, Clock, MapPin, User, X } from "lucide-react";
 import type { Event } from "./types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ interface EventDetailsSheetProps {
   onOpenChange: (open: boolean) => void;
   onAccept: () => void;
   onDismiss: () => void;
+  isAlreadyAccepted?: boolean;
 }
 
 export function EventDetailsSheet({
@@ -36,6 +37,7 @@ export function EventDetailsSheet({
   onOpenChange,
   onAccept,
   onDismiss,
+  isAlreadyAccepted = false,
 }: EventDetailsSheetProps) {
   const [isTabletOrLarger, setIsTabletOrLarger] = useState(false);
 
@@ -63,6 +65,32 @@ export function EventDetailsSheet({
       .slice(0, 2);
   };
 
+  // Clean description by removing "Hosted by: ..." and "Additional Information can be found at: ..." patterns
+  const cleanDescription = (description: string): string => {
+    if (!description) return description;
+    
+    let cleaned = description;
+    
+    // Remove "Additional Information can be found at: [url]" pattern (case insensitive)
+    // Matches with optional newlines/whitespace before, and handles URLs with various formats
+    cleaned = cleaned.replace(
+      /\n*\s*Additional\s+Information\s+can\s+be\s+found\s+at:\s*https?:\/\/[^\s\n]+/gi,
+      ""
+    );
+    
+    // Remove "Hosted by: [organization]" pattern (case insensitive)
+    // Matches with optional newlines/whitespace before, and captures everything until end of line or next section
+    cleaned = cleaned.replace(
+      /\n*\s*Hosted\s+by:\s*[^\n]+/gi,
+      ""
+    );
+    
+    // Clean up any trailing newlines or whitespace
+    cleaned = cleaned.trim();
+    
+    return cleaned;
+  };
+
   const visibleAttendees = event.attendees.slice(0, 3);
   const remainingCount = event.attendees.length - visibleAttendees.length;
 
@@ -82,7 +110,7 @@ export function EventDetailsSheet({
         <div className="space-y-6 pr-4">
           <div>
             <p className="text-sm text-muted-foreground">
-              {event.description}
+              {cleanDescription(event.description)}
             </p>
           </div>
           <div className="space-y-3 text-sm text-muted-foreground">
@@ -94,7 +122,31 @@ export function EventDetailsSheet({
               <MapPin className="h-4 w-4 shrink-0" />
               <span>{event.location}</span>
             </div>
+            {event.organizer && (
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 shrink-0" />
+                <span>{event.organizer.name}</span>
+              </div>
+            )}
           </div>
+          {event.organizerName && (
+            <div className="text-sm text-muted-foreground">
+              <span>Hosted by: {event.organizerName}</span>
+            </div>
+          )}
+          {event.url && (
+            <div className="text-sm text-muted-foreground">
+              <span>More info: </span>
+              <a
+                href={event.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                {event.url}
+              </a>
+            </div>
+          )}
           {event.attendees.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">
@@ -128,14 +180,26 @@ export function EventDetailsSheet({
         </div>
       </ScrollArea>
       <div className="mt-6 flex flex-row gap-2 sm:justify-end">
-        <Button
-          variant="secondary"
-          className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950 sm:flex-initial"
-          onClick={handleAccept}
-        >
-          <Check className="mr-2 h-4 w-4" />
-          Accept
-        </Button>
+        {isAlreadyAccepted ? (
+          <div className="flex-1 sm:flex-initial">
+            <Badge
+              variant="secondary"
+              className="flex h-10 w-full items-center justify-center gap-2 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400 sm:w-auto sm:px-4"
+            >
+              <Check className="h-4 w-4" />
+              Already Accepted
+            </Badge>
+          </div>
+        ) : (
+          <Button
+            variant="secondary"
+            className="flex-1 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950 sm:flex-initial"
+            onClick={handleAccept}
+          >
+            <Check className="mr-2 h-4 w-4" />
+            Accept
+          </Button>
+        )}
         <Button
           variant="outline"
           className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 sm:flex-initial"

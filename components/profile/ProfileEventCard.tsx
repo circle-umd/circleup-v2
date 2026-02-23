@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, MapPin } from "lucide-react";
+import { Clock, MapPin, UserCircle } from "lucide-react";
 import type { Event } from "@/app/events/types";
 import {
   Card,
@@ -49,6 +49,12 @@ export function ProfileEventCard({
             <MapPin className="h-4 w-4 shrink-0" />
             <span>{event.location}</span>
           </div>
+          {(event.organizer || event.organizerName) && (
+            <div className="flex items-center gap-2">
+              <UserCircle className="h-4 w-4 shrink-0" />
+              <span>{event.organizer?.name || event.organizerName || ""}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -43,7 +43,9 @@ export async function getMyEvents(userId: string): Promise<Event[]> {
           title,
           description,
           start_time,
-          location
+          location,
+          organizer_id,
+          organizer
         )
       `,
       )
@@ -59,6 +61,50 @@ export async function getMyEvents(userId: string): Promise<Event[]> {
       return [];
     }
 
+    // Collect unique organizer IDs
+    const organizerIds: string[] = [];
+    for (const rsvp of data) {
+      const event = rsvp.events;
+      if (event && typeof event === "object" && !Array.isArray(event)) {
+        const eventData = event as {
+          organizer_id: string | null;
+        };
+        if (eventData.organizer_id) {
+          organizerIds.push(eventData.organizer_id);
+        }
+      }
+    }
+
+    // Batch fetch organizer profiles
+    let organizerMap = new Map<string, { id: string; name: string; avatarUrl?: string }>();
+    
+    if (organizerIds.length > 0) {
+      const uniqueOrganizerIds = [...new Set(organizerIds)];
+      const { data: organizerData, error: organizerError } = await supabase
+        .from("profiles")
+        .select("id, username, first_name, last_name, avatar_url")
+        .in("id", uniqueOrganizerIds);
+
+      if (!organizerError && organizerData) {
+        organizerData.forEach((profile) => {
+          // Build name from first_name + last_name, fallback to username, or "Unknown Organizer"
+          const name =
+            profile.first_name && profile.last_name
+              ? `${profile.first_name} ${profile.last_name}`
+              : profile.first_name ||
+                profile.last_name ||
+                profile.username ||
+                "Unknown Organizer";
+
+          organizerMap.set(profile.id, {
+            id: profile.id,
+            name,
+            avatarUrl: profile.avatar_url || undefined,
+          });
+        });
+      }
+    }
+
     // Filter and map the data
     const now = new Date();
     const eventsWithTime: Array<Event & { startTime: string }> = [];
@@ -72,10 +118,16 @@ export async function getMyEvents(userId: string): Promise<Event[]> {
           description: string | null;
           start_time: string;
           location: string | null;
+          organizer_id: string | null;
+          organizer: string | null;
         };
 
         // Only include upcoming events
         if (new Date(eventData.start_time) >= now) {
+          const organizer = eventData.organizer_id
+            ? organizerMap.get(eventData.organizer_id)
+            : undefined;
+
           eventsWithTime.push({
             id: eventData.id,
             title: eventData.title,
@@ -83,6 +135,8 @@ export async function getMyEvents(userId: string): Promise<Event[]> {
             location: eventData.location || "",
             time: formatEventTime(eventData.start_time),
             attendees: [],
+            organizer,
+            organizerName: eventData.organizer || undefined,
             startTime: eventData.start_time,
           });
         }
