@@ -1,4 +1,4 @@
-import type { Event } from "./types";
+import type { Event, PopularEventResponse } from "./types";
 import { createClient } from "@/lib/supabase/client";
 
 /**
@@ -174,4 +174,53 @@ export async function getForYouEvents(
 export async function getPopularEvents(): Promise<Event[]> {
   // Simulate async data fetch
   return Promise.resolve(mockPopularEvents);
+}
+
+/**
+ * Fetches events that are popular with the user's friends using the RPC function.
+ * @param userId - The ID of the current user
+ * @param limit - Number of events to fetch (default: 20)
+ * @param offset - Number of events to skip (default: 0)
+ * @returns Promise with array of Event objects
+ */
+export async function getPopularWithFriendsEvents(
+  userId: string,
+  limit: number = 20,
+  offset: number = 0,
+): Promise<Event[]> {
+  try {
+    const supabase = createClient();
+
+    const { data, error } = await supabase.rpc("get_popular_with_friends", {
+      p_user_id: userId,
+      p_limit: limit,
+      p_offset: offset,
+    });
+
+    if (error) {
+      console.error("Error fetching popular events with friends:", error);
+      return [];
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    // Map RPC response to Event[] format
+    return (data as PopularEventResponse[]).map((item) => ({
+      id: item.event_id,
+      title: item.title,
+      description: item.description || "",
+      location: item.location || "",
+      time: formatEventTime(item.start_time),
+      attendees: item.interested_friends.map((friend) => ({
+        id: friend.id,
+        name: friend.username,
+        avatarUrl: friend.avatar_url || undefined,
+      })),
+    }));
+  } catch (error) {
+    console.error("Unexpected error fetching popular events with friends:", error);
+    return [];
+  }
 }
