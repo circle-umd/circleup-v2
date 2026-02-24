@@ -1,20 +1,13 @@
 import { createClient } from "@/lib/supabase/client";
 import type { Friend, SearchResult } from "./types";
 
-// Local types for the query result
-interface ProfileData {
+type ProfileResponse = {
   id: string;
   username: string | null;
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
-}
-
-interface FriendshipQueryResult {
-  friend_id: string;
-  status: string;
-  profiles: ProfileData | ProfileData[] | null;
-}
+};
 
 /**
  * Fetches all accepted friends for a user
@@ -55,31 +48,21 @@ export async function getFriends(userId: string): Promise<Friend[]> {
 
     // Map the data to Friend format
     const friends: Friend[] = [];
-    for (const item of data as FriendshipQueryResult[]) {
+    for (const item of data) {
       const profile = item.profiles;
-      
-      // Handle both array and object cases
-      if (Array.isArray(profile)) {
-        // If it's an array, take the first profile
-        if (profile.length > 0) {
-          const profileData = profile[0];
-          friends.push({
-            id: profileData.id,
-            username: profileData.username,
-            first_name: profileData.first_name,
-            last_name: profileData.last_name,
-            avatar_url: profileData.avatar_url,
-            status: item.status as "ACCEPTED",
-          });
-        }
-      } else if (profile && typeof profile === "object") {
-        // If it's a single object
+      if (
+        profile &&
+        typeof profile === "object" &&
+        !Array.isArray(profile) &&
+        "id" in profile
+      ) {
+        const typedProfile = profile as ProfileResponse;
         friends.push({
-          id: profile.id,
-          username: profile.username,
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          avatar_url: profile.avatar_url,
+          id: typedProfile.id,
+          username: typedProfile.username,
+          first_name: typedProfile.first_name,
+          last_name: typedProfile.last_name,
+          avatar_url: typedProfile.avatar_url,
           status: item.status as "ACCEPTED",
         });
       }

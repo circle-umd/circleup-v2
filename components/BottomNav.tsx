@@ -16,7 +16,15 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-1/2 w-full max-w-md -translate-x-1/2 border-t bg-background p-4">
+    <nav 
+      className="fixed bottom-0 left-1/2 w-full max-w-md -translate-x-1/2 border-t bg-background z-50"
+      style={{
+        paddingTop: '1rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))',
+      }}
+    >
       <div className="flex justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;
