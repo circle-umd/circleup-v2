@@ -209,7 +209,12 @@ export default function FriendsPage() {
 
   return (
     <div className="mx-auto flex h-screen max-w-md flex-col bg-background">
-      <ScrollArea className="flex-1 px-4 pt-4 pb-24">
+      <ScrollArea 
+        className="flex-1 px-4 pt-4"
+        style={{
+          paddingBottom: 'calc(4.5rem + env(safe-area-inset-bottom))',
+        }}
+      >
         <div className="space-y-6">
           {/* Search Bar */}
           <div className="relative">

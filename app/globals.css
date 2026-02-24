@@ -66,6 +66,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
+  }
+  html {
+    overscroll-behavior: none;
   }
 }
 
