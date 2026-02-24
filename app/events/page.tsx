@@ -304,7 +304,7 @@ export default function EventsPage() {
         <div className="space-y-6">
           {/* For You Section */}
           <section>
-            <h2 className="mb-4 text-lg font-semibold">For You</h2>
+            <h2 className="mb-4 text-xl font-semibold">Discover</h2>
             <div className="space-y-4">
               {isLoading ? (
                 // Show 5 skeleton cards while loading
@@ -356,7 +356,7 @@ export default function EventsPage() {
                         </motion.div>
                       ))}
                       {hasMoreEvents && (
-                        <div className="flex justify-center pt-2">
+                        <div className="flex justify-center py-2">
                           <Button
                             variant="outline"
                             onClick={handleShowMore}

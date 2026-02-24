@@ -383,7 +383,7 @@ export default function FriendsPage() {
           <section>
             <div className="mb-4 flex items-center gap-2">
               <Users className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-lg font-semibold">Your Friends</h2>
+              <h2 className="text-xl font-semibold">Your Friends</h2>
             </div>
             {isLoadingFriends ? (
               <p className="py-8 text-center text-sm text-muted-foreground">

@@ -259,7 +259,7 @@ export function ProfileDisplay({
 
       {/* My Events Section */}
       <section className="space-y-4">
-        <h3 className="text-lg font-semibold">My Events</h3>
+        <h3 className="text-xl font-semibold">My Events</h3>
         {isLoadingEvents ? (
           <div className="py-8 text-center text-sm text-muted-foreground">
             Loading events...
