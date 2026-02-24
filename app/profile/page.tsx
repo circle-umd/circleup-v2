@@ -68,7 +68,7 @@ async function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <div className="mx-auto flex h-screen max-w-md flex-col bg-background">
+    <div className="mx-auto flex h-[100dvh] max-w-md flex-col bg-background">
       <ScrollArea 
         className="flex-1 px-4 pt-4"
         style={{

@@ -68,6 +68,7 @@
     @apply bg-background text-foreground;
     overscroll-behavior-y: none;
     overscroll-behavior-x: none;
+    touch-action: manipulation;
   }
   html {
     overscroll-behavior: none;
