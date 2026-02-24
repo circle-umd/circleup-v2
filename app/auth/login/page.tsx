@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export default async function Page() {
+async function LoginPageAuthCheck() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
@@ -13,10 +13,15 @@ export default async function Page() {
     redirect("/events");
   }
 
+  return null;
+}
+
+export default function Page() {
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <Suspense fallback={<div>Loading...</div>}>
+          <LoginPageAuthCheck />
           <LoginForm />
         </Suspense>
       </div>
