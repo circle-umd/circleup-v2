@@ -30,9 +30,17 @@ export async function updateSession(request: NextRequest) {
           supabaseResponse = NextResponse.next({
             request,
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
-          );
+          cookiesToSet.forEach(({ name, value, options }) => {
+            // Enhance cookie options to ensure persistent sessions
+            const enhancedOptions = {
+              ...options,
+              maxAge: options?.maxAge ?? 31536000, // 1 year in seconds if not set
+              sameSite: options?.sameSite ?? ('lax' as const),
+              secure: options?.secure ?? process.env.NODE_ENV === 'production', // HTTPS only in production
+              path: options?.path ?? '/',
+            };
+            supabaseResponse.cookies.set(name, value, enhancedOptions);
+          });
         },
       },
     },

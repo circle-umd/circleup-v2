@@ -77,7 +77,6 @@ export default function ProfilePage() {
       >
         <div className="space-y-6">
           <section>
-            <h1 className="mb-6 text-2xl font-semibold">Profile</h1>
             <Suspense fallback={<ProfileSkeleton />}>
               <ProfileContent />
             </Suspense>
