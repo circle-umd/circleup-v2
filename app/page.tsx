@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { LoginButton } from "@/components/login-button";
 
 export default function Home() {
   return (
@@ -57,19 +57,20 @@ export default function Home() {
         </div>
 
         {/* Login Button */}
-        <Button 
-          asChild 
-          size="lg" 
-          className="mt-4 bg-white/15 backdrop-blur-md border border-white/30 text-white hover:bg-white/25 hover:border-white/40 text-lg font-semibold font-sans rounded-2xl shadow-2xl"
-          style={{
-            boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.37)',
-          }}
-        >
-          <Link href="/auth/login" className="flex items-center gap-2 font-sans">
+        <Suspense fallback={
+          <Button 
+            size="lg" 
+            className="mt-4 bg-white/15 backdrop-blur-md border border-white/30 text-white text-lg font-semibold font-sans rounded-2xl shadow-2xl"
+            style={{
+              boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.37)',
+            }}
+            disabled
+          >
             Login
-            <ChevronRight className="h-5 w-5" />
-          </Link>
-        </Button>
+          </Button>
+        }>
+          <LoginButton />
+        </Suspense>
       </div>
     </main>
   );

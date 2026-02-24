@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Search, X, Users } from "lucide-react";
+import { Search, X, Users, UserPlus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BottomNav } from "@/components/BottomNav";
 import { useToast } from "@/components/ui/toaster";
@@ -17,6 +17,7 @@ import {
   removeFriend,
 } from "./data";
 import type { Friend, SearchResult } from "./types";
+import { InviteFriendsDialog } from "@/components/invite-friends-dialog";
 
 function getFullName(firstName: string | null, lastName: string | null): string {
   if (firstName && lastName) {
@@ -41,6 +42,7 @@ export default function FriendsPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingFriends, setIsLoadingFriends] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Load friends on mount
@@ -367,11 +369,21 @@ export default function FriendsPage() {
             </section>
           )}
 
+          {/* Invite Friends Button */}
+          <Button 
+            variant="default" 
+            className="w-full mb-4"
+            onClick={() => setInviteDialogOpen(true)}
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invite Friends
+          </Button>
+
           {/* Your Friends Section */}
           <section>
             <div className="mb-4 flex items-center gap-2">
               <Users className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-lg font-semibold">Your Friends</h2>
+              <h2 className="text-xl font-semibold">Your Friends</h2>
             </div>
             {isLoadingFriends ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
@@ -436,6 +448,10 @@ export default function FriendsPage() {
         </div>
       </ScrollArea>
       <BottomNav />
+      <InviteFriendsDialog 
+        open={inviteDialogOpen} 
+        onOpenChange={setInviteDialogOpen} 
+      />
     </div>
   );
 }

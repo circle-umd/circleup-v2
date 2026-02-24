@@ -209,8 +209,9 @@ export function ProfileDisplay({
 
   return (
     <div className="space-y-6">
-      {/* Edit Button */}
-      <div className="flex justify-end">
+      {/* Profile Header Row with Edit Button */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold">Profile</h1>
         <Button
           variant="outline"
           size="sm"
@@ -258,7 +259,7 @@ export function ProfileDisplay({
 
       {/* My Events Section */}
       <section className="space-y-4">
-        <h3 className="text-lg font-semibold">My Events</h3>
+        <h3 className="text-xl font-semibold">My Events</h3>
         {isLoadingEvents ? (
           <div className="py-8 text-center text-sm text-muted-foreground">
             Loading events...

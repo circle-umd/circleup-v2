@@ -41,6 +41,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-PRD.txt
-HANDOFF.txt
-TOUCHUP.txt
+/agents

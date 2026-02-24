@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 export function ProfileSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Edit Button */}
-      <div className="flex justify-end">
+      {/* Profile Header Row with Edit Button */}
+      <div className="flex items-center justify-between mb-6">
+        <Skeleton className="h-8 w-24" />
         <Skeleton className="h-9 w-16" />
       </div>
 
