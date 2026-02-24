@@ -12,7 +12,23 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "CircleUp",
-  description: "Find your circle!",
+  description: 'Find your circle at UMD.',
+  openGraph: {
+    title: 'CircleUp',
+    description: 'Find your circle at UMD.',
+    url: 'https://circleupumd.com',
+    siteName: 'CircleUp',
+    images: [
+      {
+        url: 'https://circleupumd.com/preview.png', // Must be an absolute URL
+        width: 1200,
+        height: 630,
+        alt: 'CircleUp Preview Image',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export const viewport: Viewport = {
